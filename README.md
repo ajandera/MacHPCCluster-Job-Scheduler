@@ -1,4 +1,4 @@
-# MacHPCClusterTools
+# MacHPCCluster Job Scheduler
 
 > **Local Apple Silicon / Intel Mac HPC Cluster for MATLAB Workloads with SLURM**
 > Train neural networks, run evolutionary algorithms, and parallelize MATLAB workloads without MATLAB Parallel Server licensing.
