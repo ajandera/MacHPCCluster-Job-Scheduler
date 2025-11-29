@@ -1,20 +1,11 @@
-# MacHPCClusterTools
+# MacHPCClusterTools (Final package)
 
-This toolbox provides simple MATLAB helpers to submit jobs to a SLURM cluster from macOS,
-discover nodes via Bonjour (dns-sd), and fetch outputs from a shared path.
+This package contains the programmatic App and toolbox files.
+To use:
+1. Copy the entire folder to a location on your MATLAB path.
+2. Start MATLAB and run `install` to add paths.
+3. Launch the app with:
+   >> app = MacHPCClusterToolsApp();
+4. Use the Wizard to discover nodes, save profile, then use Job Manager to submit.
 
-Shared storage (configured): /Users/Shared/HPC
-
-File structure:
-- install.m / uninstall.m
-- +MacHPCClusterTools/Manager.m
-- +MacHPCClusterTools/+SSH/* (Client, SCP, Agent)
-- +MacHPCClusterTools/+Slurm/* (Submit, Status, Cancel, Logs)
-- +MacHPCClusterTools/+Network/* (discoverSSHHosts, resolveSSHService)
-- app/MacHPCClusterDashboard.m (simple UIFigure dashboard)
-
-Install:
-1. Copy the `MacHPCClusterTools` folder to a MATLAB path location.
-2. Run `install` in MATLAB.
-3. Open dashboard: run `MacHPCClusterDashboard` in MATLAB command window.
-
+Shared storage is set to: /Users/Shared/HPC

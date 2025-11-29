@@ -18,7 +18,7 @@ for i=1:numel(lines)
 end
 if isempty(hostname)
     candidate = [serviceName '.local'];
-    [s,pout] = system(sprintf('ping -c 1 -t 1 %s 2>/dev/null || true', candidate));
+    [s,~] = system(sprintf('ping -c 1 -t 1 %s 2>/dev/null || true', candidate));
     if s==0, hostname = candidate; port = 22; end
 end
 info.name = serviceName; info.hostname = hostname; info.port = port;
