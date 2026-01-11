@@ -1,0 +1,1 @@
+../../Resources/matplotlib/_color_data.pyi

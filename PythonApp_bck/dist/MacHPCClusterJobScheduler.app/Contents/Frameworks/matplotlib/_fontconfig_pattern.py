@@ -1,0 +1,1 @@
+../../Resources/matplotlib/_fontconfig_pattern.py

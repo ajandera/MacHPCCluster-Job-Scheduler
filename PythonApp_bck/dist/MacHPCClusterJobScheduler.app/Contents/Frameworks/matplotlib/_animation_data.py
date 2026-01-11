@@ -1,0 +1,1 @@
+../../Resources/matplotlib/_animation_data.py

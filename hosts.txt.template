@@ -1,0 +1,17 @@
+# MPI Hostfile Configuration
+# Edit this file with your actual hostnames and CPU slots
+#
+# Format: hostname slots=N
+#   hostname: The SSH-accessible hostname or IP address
+#   slots: Number of MPI processes to run on this node (typically CPU cores)
+#
+# Example configuration:
+
+# Controller node (Mac Studio)
+mac-studio.local slots=8
+
+# Compute node (Mac Pro)
+mac-pro.local slots=12
+
+# Additional nodes can be added:
+# mac-mini.local slots=4

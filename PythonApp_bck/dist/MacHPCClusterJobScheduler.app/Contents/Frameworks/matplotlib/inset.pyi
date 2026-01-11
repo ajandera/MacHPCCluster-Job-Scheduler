@@ -1,0 +1,1 @@
+../../Resources/matplotlib/inset.pyi

@@ -1,254 +1,373 @@
-# MacHPCCluster Job Scheduler
+# macOS HPC Cluster with OpenMPI
 
-> **Local Apple Silicon / Intel Mac HPC Cluster for MATLAB Workloads with SLURM**
-> Train neural networks, run evolutionary algorithms, and parallelize MATLAB workloads without MATLAB Parallel Server licensing.
+A complete, production-ready High-Performance Computing (HPC) setup for macOS using OpenMPI, Metal GPU acceleration, and a lightweight job queue system.
 
----
+## 🎯 Features
 
-## Overview
+- ✅ Multi-node MPI cluster using SSH
+- ✅ Metal GPU acceleration (Apple Silicon & AMD GPUs)
+- ✅ Automatic GPU selection per MPI rank
+- ✅ Fault-tolerant job queue (Slurm-like)
+- ✅ Cross-node distributed computing
+- ✅ Python and C/C++ support
 
-MacHPCClusterTools enables you to:
+## 📋 Requirements
 
-| Feature                                          | Supported |
-| ------------------------------------------------ | :-------: |
-| Submit `.m` files to a SLURM-managed Mac cluster |     ✔     |
-| GPU-aware job scheduling (Metal Compute)         |     ✔     |
-| SSH agent integration + passphrase GUI           |     ✔     |
-| Auto node discovery (Bonjour)                    |     ✔     |
-| Unified project & results syncing                |     ✔     |
-| Job history & monitoring dashboard               |     ✔     |
-| No MATLAB Parallel Server required               |     ✔     |
+- **macOS** 10.15 or later (Monterey+ recommended)
+- **Multiple Mac computers** connected via network
+- **Homebrew** package manager
+- **SSH access** between all nodes
 
-Runs on macOS 12+ (Intel or Apple Silicon) with **up to 3 nodes tested**:
-**2× Mac Pro + 1× Mac Studio** recommended.
+## 🚀 Quick Start
 
----
-
-## Architecture
-
-```
-MATLAB App (GUI)
-   ⬇ SSH + SCP + rsync
-Mac Pro (Master)  — SLURM Controller (slurmctld)
-   ⬇ Cluster Network
-Mac Pro (Worker)  — SLURM Compute Node (slurmd)
-   ⬇
-Mac Studio (Worker)
-```
-
-Shared storage synced automatically:
-
-```
-~/mac-hpc/projects   → Code upload
-~/mac-hpc/results    → Output download
-~/mac-hpc/scratch    → Temporary data
-```
-
----
-
-## Installation
-
-### 1. On MATLAB Workstation (Your main Mac)
-
-1. Download and unzip toolbox folder
-2. In MATLAB Command Window:
-
-```matlab
-cd MacHPCClusterTools
-install
-app = MacHPCClusterToolsApp();
-```
-
-You can then launch the GUI from:
-➡ *MATLAB Apps* → **Mac HPC Cluster Tools**
-
----
-
-### 2. On each Cluster Node (Mac Pro / Mac Studio)
-
-Run the provided setup script:
+### 1. Clone the Repository
 
 ```bash
-bash setup_hpc_node.sh
+git clone https://github.com/yourusername/macos-hpc-cluster.git
+cd macos-hpc-cluster
+```
+
+### 2. Run Installation Script (on ALL nodes)
+
+```bash
+chmod +x install.sh
+./install.sh
 ```
 
 This installs:
+- OpenMPI
+- Python 3 with mpi4py
+- Metal framework bindings
+- Creates necessary directories
 
-| Component               | Purpose                      |
-| ----------------------- | ---------------------------- |
-| Homebrew                | Package manager              |
-| SLURM                   | Job scheduler                |
-| SSH + rsync             | Remote access & sync         |
-| GPU tools               | Metal compute support        |
-| Default cluster folders | Scratch + Projects + Results |
+### 3. Configure SSH Keys
 
-Reboot recommended afterwards.
-
----
-
-## App GUI Features
-
-### Setup Wizard (first launch)
-
-✔ Add cluster nodes over SSH
-✔ Configure paths and credentials
-✔ Connection test & save profile
-
-### Job Manager
-
-| Tab     | Function                                    |
-| ------- | ------------------------------------------- |
-| Submit  | Pick `.m` script, CPUs, GPU, memory, time   |
-| Queue   | View **Pending / Running / Completed** jobs |
-| Logs    | Inspect `.out` and `.err` directly          |
-| Results | Download automatically & view in MATLAB     |
-| Nodes   | FLOPS + GPU detection, load monitoring      |
-
----
-
-## Submitting Jobs
-
-Running a script on the cluster:
-
-```matlab
-job = MacHPC.submit('trainModel.m', ...
-    CPUs=8, UseGPU=true, Time="01:30:00", Memory="32G");
-```
-
-Retrieve output:
-
-```matlab
-MacHPC.fetch(job)
-```
-
-Check status:
-
-```matlab
-MacHPC.status(job)
-```
-
-Cancel if needed:
-
-```matlab
-MacHPC.cancel(job)
-```
-
----
-
-## SSH Integration
-
-✔ Passphrase-protected private keys
-✔ SSH agent auto-start
-✔ Automatic known_hosts provisioning
-✔ Per-node credential storage (secure)
-
-Supports:
-
-* Public key authentication (recommended)
-* Optional password fallback (visual prompt)
-
----
-
-## GPU & FLOPS Detection
-
-Each node reports:
-
-* CPU cores
-* Memory capacity
-* GPU model + Metal performance score
-* Live FLOPS benchmark (startup option)
-
-Available in GUI under **Nodes** tab.
-
----
-
-## Shared Data & MATLAB Integration
-
-| Folder                | Role                           |
-| --------------------- | ------------------------------ |
-| `~/mac-hpc/projects/` | Scripts uploaded to nodes      |
-| `~/mac-hpc/results/`  | Receives `.mat` and data files |
-| `~/mac-hpc/scratch/`  | Temporary compute area         |
-
-`scp` + `rsync` ensures minimal data transfer overhead.
-
----
-
-## Advanced SLURM Configuration
-
-Config file location:
-
-```
-/opt/slurm/slurm.conf
-```
-
-Multi-node example:
-
-```
-ClusterName=MacCluster
-SlurmctldHost=MacProMaster
-
-NodeName=MacProMaster CPUs=32 RealMemory=65536 State=UNKNOWN
-NodeName=MacProWorker CPUs=32 RealMemory=65536 State=UNKNOWN
-NodeName=MacStudioWorker CPUs=24 RealMemory=98304 Gres=gpu:1 State=UNKNOWN
-
-PartitionName=default Nodes=ALL Default=YES MaxTime=INFINITE State=UP
-```
-
-Deploy:
+On your **controller node** (e.g., Mac Studio):
 
 ```bash
-slurmctld
-slurmd
-sinfo
+# Generate SSH key if you don't have one
+ssh-keygen -t ed25519
+
+# Copy to each compute node
+ssh-copy-id user@mac-pro.local
+ssh-copy-id user@mac-mini.local
+
+# Test passwordless SSH
+ssh user@mac-pro.local hostname
 ```
 
----
+✅ You should see the hostname without being prompted for a password.
 
-## Compare with MATLAB Parallel Server?
+### 4. Configure Cluster Hosts
 
-| Requirement               | MATLAB Parallel Server | MacHPCClusterTools |
-| ------------------------- | ---------------------- | ------------------ |
-| macOS cluster support     | ❌                      | ✔                  |
-| License needed per worker | ✔                      | ❌                  |
-| SLURM integration         | ✔                      | ✔                  |
-| GPU jobs on macOS         | ✔                      | ✔                  |
-| Peer-to-peer Mac cluster  | ❌                      | ✔                  |
+Edit `hosts.txt` with your cluster configuration:
 
----
-
-## Requirements
-
-| Component        | Minimum             |
-| ---------------- | ------------------- |
-| macOS            | 12+                 |
-| MATLAB           | R2022b+ recommended |
-| SSH connectivity | Required            |
-| Node count       | 1–8 validated       |
-
----
-
-## Troubleshooting
-
-Jobs remain in **PENDING**
-
-```
-squeue -u $USER
-sinfo
-slurmd -Dvvv
+```bash
+cp hosts.txt.template hosts.txt
+nano hosts.txt
 ```
 
-Cannot SSH to node
-→ Ensure **Remote Login** enabled in System Settings
-→ Verify keys in `~/.ssh/authorized_keys`
+Example configuration:
 
-GPU not detected
-→ Install latest macOS + driver firmware
-→ Only supported on **Apple Silicon** or **MPX GPU** equipped Mac Pro
+```
+mac-studio.local slots=8
+mac-pro.local slots=12
+```
+
+**Important:** Use the same username on all nodes.
+
+### 5. Test MPI Setup
+
+```bash
+# Simple hostname test
+mpirun --hostfile hosts.txt -np 4 hostname
+
+# Python MPI test
+mpirun --hostfile hosts.txt -np 4 python examples/hello_mpi.py
+```
+
+Expected output:
+```
+Hello from rank 0/4 on mac-studio.local
+Hello from rank 1/4 on mac-studio.local
+Hello from rank 2/4 on mac-pro.local
+Hello from rank 3/4 on mac-pro.local
+✅ MPI working with 4 processes across cluster
+```
+
+### 6. Compile Metal Kernels
+
+```bash
+chmod +x compile_metal.sh
+./compile_metal.sh
+```
+
+### 7. Test GPU + MPI
+
+```bash
+mpirun --hostfile hosts.txt -np 4 python examples/mpi_gpu.py
+```
+
+## 📚 Usage Guide
+
+### Running MPI Programs
+
+**Basic MPI command:**
+
+```bash
+mpirun --hostfile hosts.txt -np 8 ./your_program
+```
+
+**With GPU support:**
+
+```bash
+mpirun --hostfile hosts.txt -np 4 python your_gpu_script.py
+```
+
+**Distribute ranks evenly (2 per node):**
+
+```bash
+mpirun --map-by ppr:2:node --hostfile hosts.txt -np 4 python script.py
+```
+
+### Job Queue System
+
+The included job manager provides Slurm-like job submission and management.
+
+**Start the job runner (in background):**
+
+```bash
+nohup python job_manager.py run > job_runner.log 2>&1 &
+```
+
+**Submit a job:**
+
+```bash
+python job_manager.py submit "mpirun --hostfile hosts.txt -np 8 python mpi_program.py"
+```
+
+**List all jobs:**
+
+```bash
+python job_manager.py list
+```
+
+**List only running jobs:**
+
+```bash
+python job_manager.py list running
+```
+
+**Get job details:**
+
+```bash
+python job_manager.py info <job_id>
+```
+
+**Cancel a job:**
+
+```bash
+python job_manager.py cancel <job_id>
+```
+
+**View job output:**
+
+```bash
+cat jobs/finished/<job_id>.out
+cat jobs/finished/<job_id>.err
+```
+
+## 🔧 Advanced Configuration
+
+### macOS-Specific MPI Flags
+
+macOS networking can be finicky. Use these flags if you encounter issues:
+
+```bash
+mpirun \
+  --mca btl tcp,self \
+  --mca pml ob1 \
+  --hostfile hosts.txt \
+  -np 8 \
+  ./your_program
+```
+
+### GPU Selection
+
+The system automatically assigns GPUs based on MPI local rank:
+
+```python
+from metal_compute import select_gpu_for_rank
+
+gpu_id = select_gpu_for_rank()  # Returns 0, 1, 2... based on local rank
+```
+
+**Manual GPU selection:**
+
+```python
+from metal_compute import gpu_add, list_gpus
+
+# List available GPUs
+gpus = list_gpus()
+print(gpus)
+
+# Use specific GPU
+result = gpu_add(a, b, gpu_id=1)
+```
+
+### Custom Metal Kernels
+
+1. Create kernel in `metal_kernels/your_kernel.metal`
+2. Compile with:
+
+```bash
+cd metal_kernels
+xcrun -sdk macosx metal -c your_kernel.metal -o your_kernel.air
+xcrun -sdk macosx metallib your_kernel.air -o your_kernel.metallib
+```
+
+3. Load in Python using `metal_compute.py` as reference
+
+## 📁 Project Structure
+
+```
+macos-hpc-cluster/
+├── install.sh              # Installation script
+├── compile_metal.sh        # Metal kernel compiler
+├── metal_compute.py        # GPU computation module
+├── job_manager.py          # Job queue system
+├── hosts.txt.template      # Cluster configuration template
+├── hosts.txt               # Your cluster configuration (gitignored)
+├── metal_kernels/          # Metal GPU kernels
+│   ├── metal_add.metal     # Example vector addition
+│   └── metal_add.metallib  # Compiled kernel (generated)
+├── examples/               # Example programs
+│   ├── hello_mpi.py        # Basic MPI test
+│   └── mpi_gpu.py          # MPI + GPU example
+└── jobs/                   # Job queue data
+    ├── queue.json          # Job queue state
+    ├── running/            # Running job logs
+    └── finished/           # Completed job logs
+```
+
+## 🐛 Troubleshooting
+
+### SSH Connection Issues
+
+```bash
+# Verify SSH key is added
+ssh-add -l
+
+# Test connection manually
+ssh -v user@hostname
+
+# Check SSH config
+cat ~/.ssh/config
+```
+
+### MPI Cannot Find Hosts
+
+```bash
+# Verify hostnames resolve
+ping mac-pro.local
+
+# Try IP addresses in hosts.txt instead
+192.168.1.100 slots=8
+```
+
+### Metal Kernel Not Found
+
+```bash
+# Recompile Metal kernels
+./compile_metal.sh
+
+# Verify metallib exists
+ls -l metal_kernels/metal_add.metallib
+```
+
+### Permission Denied on Scripts
+
+```bash
+# Make scripts executable
+chmod +x install.sh compile_metal.sh
+```
+
+### Job Runner Not Processing Jobs
+
+```bash
+# Check if job runner is running
+ps aux | grep job_manager
+
+# View job runner logs
+tail -f job_runner.log
+
+# Restart job runner
+pkill -f job_manager.py
+nohup python job_manager.py run > job_runner.log 2>&1 &
+```
+
+## 🎓 Best Practices
+
+### For Production Use
+
+1. **Same OpenMPI version** on all nodes
+2. **Same username** across all machines  
+3. **Matching Python versions** (use `pyenv` for consistency)
+4. **Static IP addresses** or proper DNS
+5. **Disable sleep** on compute nodes:
+   ```bash
+   sudo pmset -a disablesleep 1
+   ```
+6. **Network optimization:**
+   - Use wired Ethernet (not WiFi)
+   - 10GbE or higher for large data transfers
+
+### Security Considerations
+
+- Use SSH keys with passphrases
+- Restrict SSH access in `/etc/ssh/sshd_config`
+- Use firewall rules to limit MPI ports
+- Don't expose cluster to public internet
+
+## 📊 Performance Tips
+
+1. **CPU Binding:** Use `--bind-to core` for CPU-intensive tasks
+2. **Network Tuning:** Adjust TCP buffer sizes in `sysctl`
+3. **GPU Selection:** Assign one rank per GPU for maximum throughput
+4. **Data Locality:** Keep data on the node doing computation
+5. **Batch Jobs:** Group small jobs together to reduce overhead
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with clear commit messages
+4. Test on actual macOS hardware
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🙏 Acknowledgments
+
+- OpenMPI project for cross-platform MPI
+- Apple for Metal framework
+- mpi4py developers
+
+## 📞 Support
+
+- **Issues:** [GitHub Issues](https://github.com/yourusername/macos-hpc-cluster/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/yourusername/macos-hpc-cluster/discussions)
+
+## 🔗 Related Resources
+
+- [OpenMPI Documentation](https://www.open-mpi.org/doc/)
+- [Metal Programming Guide](https://developer.apple.com/metal/)
+- [MPI Tutorial](https://mpitutorial.com/)
 
 ---
 
-## Credits
-
-Developed by Aleš Jandera (ales.jandera@tuke.sk)
-2025 © MacHPCClusterTools
+**Built with ❤️ for the macOS HPC community**

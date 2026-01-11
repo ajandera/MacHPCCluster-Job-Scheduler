@@ -1,0 +1,1 @@
+../../Resources/matplotlib/ft2font.pyi
