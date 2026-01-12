@@ -25,7 +25,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-**Expected output:** ✅ Installation Complete!
+**Expected output:** Installation Complete!
 
 ### Step 1.2: Configure SSH Keys
 
@@ -86,9 +86,9 @@ ssh user@mac-pro.local hostname
 
 **Expected output:** `mac-pro.local` (no password prompt)
 
-✅ If this works, SSH is configured correctly!
+If this works, SSH is configured correctly!
 
-❌ If it asks for a password, see troubleshooting below.
+If it asks for a password, see troubleshooting below.
 
 ## Part 3: Cluster Configuration
 
@@ -145,7 +145,7 @@ mac-pro.local
 mac-pro.local
 ```
 
-✅ If you see both hostnames, MPI is working across nodes!
+If you see both hostnames, MPI is working across nodes!
 
 ## Part 4: GPU Setup (Optional)
 
@@ -158,7 +158,7 @@ chmod +x compile_metal.sh
 ./compile_metal.sh
 ```
 
-**Expected output:** ✅ Metal kernels compiled successfully!
+**Expected output:** Metal kernels compiled successfully!
 
 ### Step 4.2: Test GPU
 
@@ -180,7 +180,7 @@ Rank 0 on mac-studio.local using GPU 0
 Rank 1 on mac-studio.local using GPU 1
 Rank 2 on mac-pro.local using GPU 0
 Rank 3 on mac-pro.local using GPU 1
-✅ Total sum across 4 ranks: ...
+Total sum across 4 ranks: ...
 ```
 
 ## Part 5: Job Queue Setup
@@ -205,7 +205,7 @@ ps aux | grep job_manager
 python3 job_manager.py submit "mpirun --hostfile hosts.txt -np 4 python3 examples/hello_mpi.py"
 ```
 
-**Expected output:** ✅ Job submitted: `<job_id>`
+**Expected output:** Job submitted: `<job_id>`
 
 ### Step 5.3: Check Job Status
 
@@ -231,25 +231,25 @@ Run these to ensure everything works:
 ```bash
 mpirun --hostfile hosts.txt -np 8 hostname
 ```
-✅ Should show all cluster nodes
+Should show all cluster nodes
 
 ### Test 2: Python MPI
 ```bash
 mpirun --hostfile hosts.txt -np 8 python3 examples/hello_mpi.py
 ```
-✅ Should print hello from all ranks
+Should print hello from all ranks
 
 ### Test 3: GPU Compute
 ```bash
 python3 metal_compute.py
 ```
-✅ Should list GPUs and pass test
+Should list GPUs and pass test
 
 ### Test 4: MPI + GPU
 ```bash
 mpirun --hostfile hosts.txt -np 4 python3 examples/mpi_gpu.py
 ```
-✅ Should show distributed GPU computation
+Should show distributed GPU computation
 
 ### Test 5: Job Queue
 ```bash
@@ -257,7 +257,7 @@ python3 job_manager.py submit "echo 'Hello from job queue'"
 sleep 5
 python3 job_manager.py list
 ```
-✅ Job should show as 'finished'
+Job should show as 'finished'
 
 ## Troubleshooting
 
@@ -390,6 +390,6 @@ Now that your cluster is running:
 
 ---
 
-**Congratulations! 🎉 Your macOS HPC cluster is now ready for production use.**
+**Congratulations! Your macOS HPC cluster is now ready for production use.**
 
 For more advanced configurations and examples, see the main [README.md](README.md).

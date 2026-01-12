@@ -17,4 +17,4 @@ print(f"Hello from rank {rank}/{size} on {hostname}")
 comm.Barrier()
 
 if rank == 0:
-    print(f"\n✅ MPI working with {size} processes across cluster")
+    print(f"\n MPI working with {size} processes across cluster")

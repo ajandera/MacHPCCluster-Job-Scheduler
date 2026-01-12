@@ -473,7 +473,7 @@ class HPCDashboard(QWidget):
             self.ssh = None
             return
         
-        self.append_log("✅ Connected successfully")
+        self.append_log("Connected successfully")
         self.cfg['host'] = host
         self.cfg['user'] = user
         self.cfg['key_path'] = key
@@ -513,7 +513,7 @@ class HPCDashboard(QWidget):
         
         hosts_file = self.hosts_file_path.text().strip()
         if not hosts_file or not Path(hosts_file).exists():
-            self.append_log("⚠️  Hosts file not found")
+            self.append_log("Hosts file not found")
             return
         
         self.cluster_nodes = []
@@ -548,7 +548,7 @@ class HPCDashboard(QWidget):
                 # Check if node is reachable
                 out, err = self.ssh.exec(f"ssh -o ConnectTimeout=3 {hostname} 'echo OK'", timeout=5)
                 if 'OK' in out:
-                    self.nodes_table.setItem(row, 1, QTableWidgetItem("✅ Online"))
+                    self.nodes_table.setItem(row, 1, QTableWidgetItem("Online"))
                     
                     # Get CPU count
                     out, _ = self.ssh.exec(f"ssh {hostname} 'sysctl -n hw.ncpu'", timeout=5)
@@ -561,9 +561,9 @@ class HPCDashboard(QWidget):
                         mem_gb = int(out.strip()) / (1024**3)
                         self.nodes_table.setItem(row, 3, QTableWidgetItem(f"{mem_gb:.1f} GB"))
                 else:
-                    self.nodes_table.setItem(row, 1, QTableWidgetItem("❌ Offline"))
+                    self.nodes_table.setItem(row, 1, QTableWidgetItem("Offline"))
             except Exception as e:
-                self.nodes_table.setItem(row, 1, QTableWidgetItem("❌ Offline"))
+                self.nodes_table.setItem(row, 1, QTableWidgetItem("Offline"))
                 self.append_log(f"Node {hostname} check failed: {e}")
         
         self.append_log(f"Found {len(self.cluster_nodes)} nodes in cluster")
@@ -625,7 +625,7 @@ class HPCDashboard(QWidget):
             self.ssh.exec(f"mkdir -p {remote} && chmod 2775 {remote} || true")
             for d in ('inputs', 'outputs', 'tmp', 'logs'):
                 self.ssh.mkdir(f"{remote}/{d}")
-            self.append_log("✅ Shared path created (use NFS for true shared filesystem)")
+            self.append_log("Shared path created (use NFS for true shared filesystem)")
             self.cfg['shared_path'] = remote
             save_config(self.cfg)
         except Exception as e:
@@ -662,7 +662,7 @@ class HPCDashboard(QWidget):
             except Exception as e:
                 self.append_log(f"Failed to download {f}: {e}")
         
-        self.append_log(f"✅ Downloaded {len(files)} files to {LOCAL_JOB_OUTPUT_DIR}")
+        self.append_log(f"Downloaded {len(files)} files to {LOCAL_JOB_OUTPUT_DIR}")
 
     # ---------- MPI job submission ----------
     def submit_mpi_job(self):
@@ -703,7 +703,7 @@ class HPCDashboard(QWidget):
         # Upload script
         try:
             self.ssh.put(local_script, remote_script)
-            self.append_log(f"✅ Uploaded {script_name}")
+            self.append_log(f"Uploaded {script_name}")
         except Exception as e:
             self.append_log(f"Upload failed: {e}")
             return
@@ -756,7 +756,7 @@ class HPCDashboard(QWidget):
             self.ssh.put(str(local_launcher), remote_launcher)
             self.ssh.exec(f"chmod +x {remote_launcher}")
             local_launcher.unlink()
-            self.append_log(f"✅ Created job launcher")
+            self.append_log(f"Created job launcher")
         except Exception as e:
             self.append_log(f"Launcher upload failed: {e}")
             try:
@@ -772,14 +772,14 @@ class HPCDashboard(QWidget):
             
             if out:
                 pid = out.strip()
-                self.append_log(f"✅ Job submitted: {jobid} (PID: {pid})")
+                self.append_log(f"Job submitted: {jobid} (PID: {pid})")
                 
                 # Record in database
                 nodes_str = ",".join([n['hostname'] for n in self.cluster_nodes[:2]])  # Approximate
                 insert_job_record(jobid, job_name, remote_script, remote_out,
                                 remote_err, exec_cmd, num_procs, nodes_str, status='RUNNING')
             else:
-                self.append_log(f"❌ Job submission failed: {err}")
+                self.append_log(f"Job submission failed: {err}")
                 insert_job_record(jobid, job_name, remote_script, remote_out,
                                 remote_err, exec_cmd, num_procs, "", status='FAILED')
         except Exception as e:
@@ -846,10 +846,10 @@ class HPCDashboard(QWidget):
                                     self.ssh.get(remote_out, str(local_out))
                                     self.ssh.get(remote_err, str(local_err))
                                     update_job_status(jobid, 'COMPLETED')
-                                    self.append_log(f"✅ Downloaded outputs for job {jobid}")
+                                    self.append_log(f"Downloaded outputs for job {jobid}")
                                 except Exception as e:
                                     update_job_status(jobid, 'COMPLETED_NO_OUTPUT')
-                                    self.append_log(f"⚠️  Job {jobid} completed but output download failed: {e}")
+                                    self.append_log(f"Job {jobid} completed but output download failed: {e}")
                         except Exception as e:
                             self.append_log(f"Job watcher error for {jobid}: {e}")
             except Exception as e:

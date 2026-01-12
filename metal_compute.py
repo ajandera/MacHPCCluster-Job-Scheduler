@@ -137,6 +137,6 @@ if __name__ == "__main__":
         b = np.ones(1000, dtype=np.float32) * 3.0
         c = gpu_add(a, b, gpu_id=0)
         print(f"Result: {c[:5]} (expected: [5. 5. 5. 5. 5.])")
-        print("✅ GPU computation working!")
+        print("GPU computation working!")
     except Exception as e:
-        print(f"⚠️  GPU computation test skipped: {e}")
+        print(f"GPU computation test skipped: {e}")

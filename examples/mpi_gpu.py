@@ -22,7 +22,7 @@ try:
     gpu_id = select_gpu_for_rank()
     print(f"Rank {rank} on {hostname} using GPU {gpu_id}")
 except Exception as e:
-    print(f"⚠️  Rank {rank}: GPU selection failed: {e}")
+    print(f"Rank {rank}: GPU selection failed: {e}")
     gpu_id = 0
 
 # Create test data
@@ -36,7 +36,7 @@ try:
     local_sum = np.sum(c)
     print(f"Rank {rank}: Computed sum = {local_sum:.2f}")
 except Exception as e:
-    print(f"⚠️  Rank {rank}: GPU computation failed: {e}")
+    print(f"Rank {rank}: GPU computation failed: {e}")
     c = a + b
     local_sum = np.sum(c)
 
@@ -44,6 +44,6 @@ except Exception as e:
 total_sum = comm.reduce(local_sum, op=MPI.SUM, root=0)
 
 if rank == 0:
-    print(f"\n✅ Total sum across {size} ranks: {total_sum:.2f}")
+    print(f"\n Total sum across {size} ranks: {total_sum:.2f}")
     expected = size * N * (rank + 2)  # Approximate expected value
     print(f"   Computation completed successfully!")

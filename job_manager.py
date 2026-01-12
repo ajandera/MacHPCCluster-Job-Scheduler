@@ -77,7 +77,7 @@ def submit_job(command, name=None, timeout=TIMEOUT):
     jobs.append(job)
     save_jobs(jobs)
     
-    print(f"✅ Job submitted: {job['id']}")
+    print(f"Job submitted: {job['id']}")
     print(f"   Name: {job['name']}")
     print(f"   Command: {job['cmd']}")
     return job['id']
@@ -112,7 +112,7 @@ def get_job_info(job_id):
     job = next((j for j in jobs if j['id'] == job_id), None)
     
     if not job:
-        print(f"❌ Job not found: {job_id}")
+        print(f"Job not found: {job_id}")
         return
     
     print(f"Job ID: {job['id']}")
@@ -137,23 +137,23 @@ def cancel_job(job_id):
     job = next((j for j in jobs if j['id'] == job_id), None)
     
     if not job:
-        print(f"❌ Job not found: {job_id}")
+        print(f"Job not found: {job_id}")
         return
     
     if job['state'] == 'queued':
         job['state'] = 'cancelled'
         save_jobs(jobs)
-        print(f"✅ Job {job_id} cancelled (was queued)")
+        print(f"Job {job_id} cancelled (was queued)")
     elif job['state'] == 'running':
         try:
             os.kill(job['pid'], signal.SIGTERM)
             job['state'] = 'cancelled'
             save_jobs(jobs)
-            print(f"✅ Job {job_id} cancelled (was running)")
+            print(f"Job {job_id} cancelled (was running)")
         except:
-            print(f"❌ Failed to kill process {job['pid']}")
+            print(f"Failed to kill process {job['pid']}")
     else:
-        print(f"⚠️  Job {job_id} is {job['state']}, cannot cancel")
+        print(f"Job {job_id} is {job['state']}, cannot cancel")
 
 
 def run_jobs():
@@ -161,7 +161,7 @@ def run_jobs():
     Job runner daemon - processes queued jobs
     Run this in the background: python job_manager.py run
     """
-    print("🚀 Job runner started")
+    print("Job runner started")
     print("Press Ctrl+C to stop")
     
     try:
@@ -174,7 +174,7 @@ def run_jobs():
                     try:
                         os.kill(job['pid'], 0)  # Check if process exists
                     except OSError:
-                        print(f"⚠️  Job {job['id']} orphaned, marking as failed")
+                        print(f"Job {job['id']} orphaned, marking as failed")
                         job['state'] = 'failed'
                         job['end_time'] = time.time()
                         save_jobs(jobs)
@@ -182,7 +182,7 @@ def run_jobs():
                 
                 # Start queued jobs
                 if job['state'] == 'queued':
-                    print(f"▶️  Starting job {job['id']}: {job['name']}")
+                    print(f"Starting job {job['id']}: {job['name']}")
                     job['state'] = 'running'
                     job['start_time'] = time.time()
                     
@@ -213,9 +213,9 @@ def run_jobs():
                         )
                         
                         save_jobs(jobs)
-                        print(f"✅ Job {job['id']} {job['state']}")
+                        print(f"Job {job['id']} {job['state']}")
                     except Exception as e:
-                        print(f"❌ Job {job['id']} failed to start: {e}")
+                        print(f"Job {job['id']} failed to start: {e}")
                         job['state'] = 'failed'
                         job['end_time'] = time.time()
                         save_jobs(jobs)
@@ -224,7 +224,7 @@ def run_jobs():
                 if job['state'] == 'running' and job.get('start_time'):
                     elapsed = time.time() - job['start_time']
                     if elapsed > job.get('timeout', TIMEOUT):
-                        print(f"⏱️  Job {job['id']} timed out")
+                        print(f"Job {job['id']} timed out")
                         try:
                             os.kill(job['pid'], signal.SIGKILL)
                         except:
@@ -252,7 +252,7 @@ if __name__ == "__main__":
     
     if cmd == "submit":
         if len(sys.argv) < 3:
-            print("❌ Error: Provide command to run")
+            print("Error: Provide command to run")
             sys.exit(1)
         submit_job(" ".join(sys.argv[2:]))
     
@@ -262,13 +262,13 @@ if __name__ == "__main__":
     
     elif cmd == "info":
         if len(sys.argv) < 3:
-            print("❌ Error: Provide job ID")
+            print("Error: Provide job ID")
             sys.exit(1)
         get_job_info(sys.argv[2])
     
     elif cmd == "cancel":
         if len(sys.argv) < 3:
-            print("❌ Error: Provide job ID")
+            print("Error: Provide job ID")
             sys.exit(1)
         cancel_job(sys.argv[2])
     
@@ -276,5 +276,5 @@ if __name__ == "__main__":
         run_jobs()
     
     else:
-        print(f"❌ Unknown command: {cmd}")
+        print(f"Unknown command: {cmd}")
         sys.exit(1)

@@ -14,7 +14,7 @@ xcrun -sdk macosx metallib metal_add.air -o metal_add.metallib
 # Clean up intermediate files
 rm metal_add.air
 
-echo "✅ Metal kernels compiled successfully!"
+echo "Metal kernels compiled successfully!"
 echo "   Output: metal_kernels/metal_add.metallib"
 
 cd ..
